@@ -1,5 +1,7 @@
 # rememr
 
+This tool...
+
 ## Project setup
 ```
 npm install
