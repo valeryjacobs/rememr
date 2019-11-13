@@ -1,6 +1,6 @@
 # rememr
 
-This tool...2
+This tool...2npm 
 
 ## Project setup
 ```
