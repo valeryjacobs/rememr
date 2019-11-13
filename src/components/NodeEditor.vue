@@ -28,14 +28,17 @@ import "tui-editor/dist/tui-editor.css";
 import "tui-editor/dist/tui-editor-contents.css";
 import "codemirror/lib/codemirror.css";
 import { Editor } from "@toast-ui/vue-editor";
+import { displayDateFormat } from '../shared/constants.js';
+import { nodeData } from '../shared/nodedata.js'; 
+
 
 export default {
   name: "NodeEditor",
   components: {
     editor: Editor
   },
-  created() {
-    //this.getNodeData();
+  async created() {
+    await this.loadNode();
   },
   data() {
     return {
@@ -55,13 +58,15 @@ export default {
           { id: "f", title: "some title for f" }
         ]
       },
-      status: "",
-      selectedNode: ""
+      status: displayDateFormat.toString(),
+      selectedNode: "",
+      nodes:"",
+      temp: displayDateFormat.toString()
     };
   },
   methods: {
     async loadNode() {
-     //this.nodes = await nodeData.getNodeData();
+     this.nodes = await nodeData.getNodeData();
     },
     save() {
       this.status = "saved";
