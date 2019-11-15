@@ -3,14 +3,14 @@
     Node editor:
     <h1>{{ node.content }}</h1>
     <ul>
-      <li v-for="link in node.ins" :key="link.id">
+      <li v-for="link in node.in" :key="link.id">
         <a @click="selectedNode = link.id">{{link.id}} : {{link.title}}</a>
       </li>
     </ul>
-    <input class="input" v-model="node.content" />
+    <input class="input" v-model="node" />
     <editor v-model="node.content" />
     <ul>
-      <li v-for="link in node.outs" :key="link.id">
+      <li v-for="link in node.out" :key="link.id">
         <a @click="selectedNode = link.id">{{link.id}} : {{link.title}}</a>
       </li>
     </ul>
@@ -24,13 +24,12 @@
 </template> 
 
 <script>
+import { mapActions, mapState } from 'vuex';
 import "tui-editor/dist/tui-editor.css";
 import "tui-editor/dist/tui-editor-contents.css";
 import "codemirror/lib/codemirror.css";
 import { Editor } from "@toast-ui/vue-editor";
 import { displayDateFormat } from '../shared/constants.js';
-import { nodeData } from '../shared/nodedata.js'; 
-
 
 export default {
   name: "NodeEditor",
@@ -38,12 +37,12 @@ export default {
     editor: Editor
   },
   async created() {
-    await this.loadNode();
+   // await this.loadNode();
   },
   data() {
     return {
       editorText: "some text",
-      node: {
+      nodeAlt: {
         id: "id 1",
         title: "some node",
         content: "some content",
@@ -65,13 +64,31 @@ export default {
     };
   },
   methods: {
+    ...mapActions(['getNodeAction', 'deleteNodeAction','addNodeAction']),
     async loadNode() {
-     this.nodes = await nodeData.getNodeData();
+    //this.nodes = await nodeData.getNodeData();
+    //this.$store.state.currentNode
+       this.status = "loading node...";
+       await this.getNodeAction('root');
+       this.status = "loaded.";
+    },
+    async updateNode() {
+       this.status = "updating node...";
+       await this.updateNodeAction();
+       this.status = "updated.";
+    },
+    async addNode(){
+      this.status = "adding node";
+      await this.addNodeAction();
     },
     save() {
       this.status = "saved";
     }
+  },
+  computed: {
+    ...mapState(['node']),
   }
+
   //   ,
   //   props: {
   //     nodeContent: String
