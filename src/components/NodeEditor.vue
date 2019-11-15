@@ -1,24 +1,24 @@
 <template>
   <div class="editor">
-    Node editor:
-    <h1>{{ node.content }}</h1>
+    <h1><input v-model="node.metadata.title" placeholder="enter title"> </h1>
+    <h3>{{ node.id}}</h3>
     <ul>
-      <li v-for="link in node.in" :key="link.id">
-        <a @click="selectedNode = link.id">{{link.id}} : {{link.title}}</a>
+      <li v-for="link in node.metadata.ins" :key="link.id">
+        <a @click="loadNode(link.id)">{{link.id}} : {{link.title}}</a>
       </li>
     </ul>
-    <input class="input" v-model="node" />
+  
     <editor v-model="node.content" />
     <ul>
-      <li v-for="link in node.out" :key="link.id">
-        <a @click="selectedNode = link.id">{{link.id}} : {{link.title}}</a>
+      <li v-for="link in node.metadata.outs" :key="link.id">
+        <a @click="loadNode(link.id)">{{link.id}} : {{link.title}}</a>
       </li>
     </ul>
 
     <a>Selected node: {{selectedNode}}</a>
-    <button @click="save">Save</button>
-
+    <button @click="updateNode">Save</button>
      <button @click="loadNode">Load</button>
+      <button @click="addNode">Add</button>
     <a>{{status}}</a>
   </div>
 </template> 
@@ -37,39 +37,26 @@ export default {
     editor: Editor
   },
   async created() {
-   // await this.loadNode();
+    await this.init();
   },
   data() {
     return {
       editorText: "some text",
-      nodeAlt: {
-        id: "id 1",
-        title: "some node",
-        content: "some content",
-        ins: [
-          { id: "a", title: "some title" },
-          { id: "b", title: "some title for b" },
-          { id: "c", title: "some title for c" }
-        ],
-        outs: [
-          { id: "d", title: "some title" },
-          { id: "e", title: "some title for e" },
-          { id: "f", title: "some title for f" }
-        ]
-      },
       status: displayDateFormat.toString(),
       selectedNode: "",
-      nodes:"",
       temp: displayDateFormat.toString()
     };
   },
   methods: {
-    ...mapActions(['getNodeAction', 'deleteNodeAction','addNodeAction']),
-    async loadNode() {
-    //this.nodes = await nodeData.getNodeData();
-    //this.$store.state.currentNode
-       this.status = "loading node...";
+    ...mapActions(['getNodeAction', 'deleteNodeAction','addNodeAction','updateNodeAction']),
+    async init() {
+       this.status = "initializing...";
        await this.getNodeAction('root');
+       this.status = "loaded.";
+    },
+     async loadNode(nodeId) {
+       this.status = "loading node...";
+       await this.getNodeAction(nodeId);
        this.status = "loaded.";
     },
     async updateNode() {

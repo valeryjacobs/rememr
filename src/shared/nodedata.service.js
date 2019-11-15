@@ -30,33 +30,54 @@ const getNode = async function (nodeId) {
     });
   }
 
+  let nodeMetaData = JSON.parse(blobProperties.metadata.nodemeta);
+
   return {
+    id: nodeId,
     content: nodeContent,
-    in: JSON.parse( blobProperties.metadata.in),
-    out: JSON.parse(blobProperties.metadata.out)
+    metadata: nodeMetaData,
   };
 };
 
-const addNode = async function (node) {
-  const blockBlobClient = containerClient.getBlockBlobClient(node.id);
-   await blockBlobClient.upload(node.content, node.content.length);
-
-  await blockBlobClient.setMetadata({in:node.in,out:node.out});
-
+const addNode = async function (newNode) {
+  const blockBlobClient = containerClient.getBlockBlobClient(newNode.id);
+  await blockBlobClient.upload(newNode.content, newNode.content.length);
+  await blockBlobClient.setMetadata({ "nodemeta": JSON.stringify(newNode.metadata) });
 };
 
 const updateNode = async function (node) {
-  console.log(node);
+  let x = node;
+  console.log(x);
+  const blockBlobClient = containerClient.getBlockBlobClient(node.id);
+  await blockBlobClient.upload(node.content, node.content.length);
+  await blockBlobClient.setMetadata({ "nodemeta": JSON.stringify(node.metadata) });
 };
 
 const deleteNode = async function (nodeId) {
   console.log(nodeId);
 };
 
+const getMetadata = async function (nodeId) {
+  const blobClient = containerClient.getBlobClient(nodeId);
+  const blobProperties = await blobClient.getProperties();
+  let nmds = JSON.parse(blobProperties.metadata.nodemeta);
+  return nmds;
+}
+
+const setMetadata = async function (nodeId, metadata) {
+  const blobClient = containerClient.getBlobClient(nodeId);
+  console.log(blobClient + metadata);
+
+  await blobClient.setMetadata({ "nodemeta": JSON.stringify(metadata) });
+  //{"title":"RootNode","ins":[],"outs":[]}
+}
+
 export const nodeDataService = {
   getNode,
   addNode,
   updateNode,
-  deleteNode
+  deleteNode,
+  getMetadata,
+  setMetadata
 };
 
