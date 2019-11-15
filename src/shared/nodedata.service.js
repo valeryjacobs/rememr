@@ -16,6 +16,7 @@ const getNode = async function (nodeId) {
   const blobProperties = await blobClient.getProperties();
 
   const downloadBlockBlobResponse = await blobClient.download();
+  
   const nodeContent = await blobToString(await downloadBlockBlobResponse.blobBody);
 
   async function blobToString(blob) {
