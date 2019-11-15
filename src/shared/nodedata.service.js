@@ -4,7 +4,7 @@ const anonymousCredential = new AnonymousCredential();
 
 const blobServiceClient = new BlobServiceClient(
   // When using AnonymousCredential, following url should include a valid SAS or support public access
-  `https://jobblr.blob.core.windows.net/?sv=2019-02-02&ss=b&srt=sco&sp=rwdlac&se=2024-11-14T05:38:12Z&st=2019-11-13T21:38:12Z&spr=https&sig=Myqspe4jWnNT87Fndk6ntoViRIguYDby8cY7yTRlGZc%3D`,
+  localStorage.getItem('storageaccountsas'),
   anonymousCredential
 );
 
@@ -16,7 +16,7 @@ const getNode = async function (nodeId) {
   const blobProperties = await blobClient.getProperties();
 
   const downloadBlockBlobResponse = await blobClient.download();
-  
+
   const nodeContent = await blobToString(await downloadBlockBlobResponse.blobBody);
 
   async function blobToString(blob) {
