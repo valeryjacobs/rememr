@@ -1,32 +1,80 @@
 <template>
-  <div class="editor">
-    <h1>
+  <div >
+    <div class="columns">
+      <div class="column">
+        <nav class="panel">
+          <b-field label="Node">
+            <b-input v-model="node.metadata.title"></b-input>
+          </b-field>
+
+          <b-taglist>
+            <b-tag v-for="link in node.metadata.ins" :key="link.id" type="is-info">
+              <a @click="loadNode(link.id)">{{link.title}}</a>
+            </b-tag>
+          </b-taglist>
+
+          <a class="panel-block is-active" v-for="link in node.metadata.ins" :key="link.id">
+            <span class="panel-icon">
+              <i class="fas fa-book" aria-hidden="true"></i>
+            </span>
+            {{link.title}}
+          </a>
+        </nav>
+      </div>
+    </div>
+    <!-- <h1>
       <input v-model="node.metadata.title" placeholder="enter title" />
     </h1>
-    <h3>{{ node.id}}</h3>
-    <ul>
+    <h3>{{ node.id}}</h3>-->
+
+    <!-- <ul>
       <li v-for="link in node.metadata.ins" :key="link.id">
         <a @click="loadNode(link.id)">{{link.id | shorten}} : {{link.title}}</a>
       </li>
-    </ul>
+    </ul>-->
+    <div class="columns">
+      <div class="column is-full">
+        <editor v-model="node.content" />
+      </div>
+    </div>
 
-    <editor v-model="node.content" />
-    <ul>
+    <!-- <ul>
       <li v-for="link in node.metadata.outs" :key="link.id">
         <a @click="loadNode(link.id)">{{link.id | shorten}} : {{link.title}}</a>
       </li>
-    </ul>
+    </ul>-->
+    <div class="columns">
+      <div class="column">
+        <b-taglist>
+          <b-tag v-for="link in node.metadata.outs" :key="link.id" type="is-info">
+            <a @click="loadNode(link.id)">{{link.title}}</a>
+          </b-tag>
+        </b-taglist>
+      </div>
+    </div>
 
-    <a>Selected node: {{selectedNode}}</a>
-    <button @click="updateNode">Save</button>
-    <button @click="loadNode">Load</button>
-    <button @click="addNode">Add</button>
-    <button @click="loadTitles">Load titles</button>
-     <button class="button is-primary">
-              Primary button
-            </button>
-    <a>{{status}}</a>
+    <div class="columns">
+      <div class="column">
+        <a>Selected node: {{selectedNode}}</a>
+      </div>
+      <div class="column">
+        <button class="button is-primary" @click="updateNode">Save</button>
+        <button class="button is-primary" @click="loadNode">Load</button>
+        <button class="button is-primary" @click="addNode">Add</button>
+        <button class="button is-primary" @click="loadTitles">Load titles</button>
+        <button class="button is-primary">Primary button</button>
+      </div>
+    </div>
+
+    <div class="columns">
+      <div class="column">
+        <a>{{status}}</a>
+      </div>
+    </div>
+
+  
   </div>
+  
 </template> 
 
 <script>
@@ -84,7 +132,7 @@ export default {
     async loadTitles() {
       this.status = "loading titles...";
       await this.loadTitlesAction();
-       this.status = "titles loaded";
+      this.status = "titles loaded";
     },
     save() {
       this.status = "saved";
@@ -97,9 +145,7 @@ export default {
       return value.charAt(0).toUpperCase() + value.slice(1);
     },
     shorten: function(value) {
-      
-
-      return value.substring(0,5);
+      return value.substring(0, 5);
     }
   },
   computed: {
@@ -114,19 +160,4 @@ export default {
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
+
