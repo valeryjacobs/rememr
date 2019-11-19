@@ -3,7 +3,6 @@ const { BlobServiceClient, AnonymousCredential } = require("@azure/storage-blob"
 const anonymousCredential = new AnonymousCredential();
 
 const blobServiceClient = new BlobServiceClient(
-  // When using AnonymousCredential, following url should include a valid SAS or support public access
   localStorage.getItem('storageaccountsas'),
   anonymousCredential
 );
@@ -66,11 +65,17 @@ const getMetadata = async function (nodeId) {
 
 const setMetadata = async function (nodeId, metadata) {
   const blobClient = containerClient.getBlobClient(nodeId);
-  console.log(blobClient + metadata);
 
   await blobClient.setMetadata({ "nodemeta": JSON.stringify(metadata) });
   //{"title":"RootNode","ins":[],"outs":[]}
-}
+};
+
+const resolveNode = async function (nodeId){
+  const blobClient = containerClient.getBlobClient(nodeId);
+  const blobProperties = await blobClient.getProperties();
+  let nmds = JSON.parse(blobProperties.metadata.nodemeta);
+  return nmds.title;
+};
 
 export const nodeDataService = {
   getNode,
@@ -78,6 +83,7 @@ export const nodeDataService = {
   updateNode,
   deleteNode,
   getMetadata,
-  setMetadata
+  setMetadata,
+  resolveNode
 };
 

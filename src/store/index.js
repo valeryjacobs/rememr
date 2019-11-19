@@ -8,6 +8,7 @@ import {
   UPDATE_NODE,
   GET_NODE,
   DELETE_NODE,
+  LOAD_TITLES
 
 } from './mutation-types';
 
@@ -25,7 +26,8 @@ Vue.use(Vuex)
 
 const state = () => ({
   node: new Node('dummy'),
-  status:"",
+  titles: { id: "value1" },
+  status: "",
   storageClient: {}
 });
 
@@ -34,13 +36,16 @@ const mutations = {
     state.node = addedNode;
   },
   async [UPDATE_NODE]() {
-  
+
   },
   async [GET_NODE](state, loadedNode) {
     state.node = loadedNode;
   },
   async [DELETE_NODE]() {
     state.node = {};
+  },
+  async [LOAD_TITLES]() {
+
   }
 };
 
@@ -52,16 +57,14 @@ const actions = {
 
     let newNode = new Node(createNewNodeId());
     newNode.content = "empty";
-    newNode.metadata = JSON.parse('{"title":"empty title","ins":[{"id":"' + parentNodeId + '","title":"' + this.state.node.metadata.title +  '"}],"outs":[]}');
-
+    newNode.metadata = JSON.parse('{"title":"empty title","ins":[{"id":"' + parentNodeId + '","title":"' + this.state.node.metadata.title + '"}],"outs":[]}');
 
     await nodeDataService.addNode(newNode);
 
     let parentMetadata = await nodeDataService.getMetadata(parentNodeId)
 
     if (parentMetadata.outs) {
-      parentMetadata.outs.push({"id":newNode.id,"title":""});
- 
+      parentMetadata.outs.push({ "id": newNode.id, "title": "" });
     }
 
     await nodeDataService.setMetadata(parentNodeId, parentMetadata);
@@ -79,6 +82,19 @@ const actions = {
   async updateNodeAction({ commit }) {
     await nodeDataService.updateNode(this.state.node);
     commit(UPDATE_NODE);
+  },
+  async loadTitlesAction({ commit }) {
+    this.state.node.metadata.ins.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
+
+    this.state.node.metadata.outs.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
+
+    commit(LOAD_TITLES);
   }
 };
 const getters = {
