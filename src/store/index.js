@@ -78,7 +78,8 @@ const actions = {
   async getNodeAction({ commit }, nodeId) {
     const loadedNode = await nodeDataService.getNode(nodeId);
 
-    await this.loadTitlesAction();
+    //await this.loadTitlesAction();
+
     commit(GET_NODE, loadedNode);
   },
   async updateNodeAction({ commit }) {
