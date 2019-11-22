@@ -10,7 +10,7 @@ import {
   DELETE_NODE,
   LOAD_TITLES,
   LOAD_PINS,
-  PIN_NODE
+  ADD_PIN
 
 } from './mutation-types';
 
@@ -50,7 +50,7 @@ const mutations = {
   },
   async [LOAD_TITLES]() {
   },
-  async [PIN_NODE](state,pins) {
+  async [ADD_PIN](state,pins) {
     state.pins = pins;
   }
 };
@@ -86,9 +86,13 @@ const actions = {
     
     commit(DELETE_NODE,parentNode);
   },
-  loadPinsAction({commit}){
-    let pins = nodeDataService.getPins();
+  async loadPinsAction({commit}){
+    let pins = await nodeDataService.getPins();
     commit(LOAD_PINS,pins)
+  },
+  async addPinAction({commit}){
+    let pins = await nodeDataService.addPin();
+    commit(ADD_PIN,pins)
   },
   async getNodeAction({ commit }, nodeId) {
     const loadedNode = await nodeDataService.getNode(nodeId);

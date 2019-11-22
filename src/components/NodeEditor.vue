@@ -163,7 +163,7 @@ export default {
       await this.addNodeAction();
     },
   
-    async pinNodeAction() {
+    async pinNode() {
       this.status = "Pinning node...";
       await this.pinNodeAction();
       this.status = "Node pinned";

@@ -9,8 +9,35 @@ const blobServiceClient = new BlobServiceClient(
 
 const containerClient = blobServiceClient.getContainerClient('nodes');
 
-const getPins = function (){
-  return   localStorage.getItem('storageaccountsas').split(',');
+const getPins = async function () {
+  const blobClient = containerClient.getBlobClient('pins');
+
+  const downloadBlockBlobResponse = await blobClient.download();
+
+  const pinsString = await blobToString(await downloadBlockBlobResponse.blobBody);
+
+  async function blobToString(blob) {
+    const fileReader = new FileReader();
+    return new Promise((resolve, reject) => {
+      fileReader.onloadend = (ev) => {
+        resolve(ev.target.result);
+      };
+      fileReader.onerror = reject;
+      fileReader.readAsText(blob);
+    });
+  }
+
+  return JSON.parse(pinsString).pins;
+}
+
+const savePin = async function (nodeId) {
+  let pins = getPins();
+  pins.push(nodeId);
+  let pinsJSON = JSON.stringify(pins);
+  const blockBlobClient = containerClient.getBlockBlobClient('pins');
+  await blockBlobClient.upload(pinsJSON, pinsJSON.length);
+  
+  return pins;
 }
 
 const getNode = async function (nodeId) {
@@ -74,7 +101,7 @@ const setMetadata = async function (nodeId, metadata) {
   //{"title":"RootNode","ins":[],"outs":[]}
 };
 
-const resolveNode = async function (nodeId){
+const resolveNode = async function (nodeId) {
   const blobClient = containerClient.getBlobClient(nodeId);
   const blobProperties = await blobClient.getProperties();
   let nmds = JSON.parse(blobProperties.metadata.nodemeta);
@@ -89,6 +116,7 @@ export const nodeDataService = {
   getMetadata,
   setMetadata,
   resolveNode,
-  getPins
+  getPins,
+  savePin
 };
 
