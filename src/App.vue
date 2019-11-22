@@ -12,10 +12,14 @@
 import NodeEditor from "./components/NodeEditor.vue";
 import './customstyle.scss'
 
+
+
+
 export default {
   name: "app",
   components: {
     NodeEditor
+  
   }
 };
 </script>

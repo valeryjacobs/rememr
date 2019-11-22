@@ -9,7 +9,8 @@ import {
   GET_NODE,
   DELETE_NODE,
   LOAD_TITLES,
-  LOAD_PINS
+  LOAD_PINS,
+  PIN_NODE
 
 } from './mutation-types';
 
@@ -26,6 +27,7 @@ Vue.use(Vuex)
 
 const state = () => ({
   node: new Node('dummy'),
+  pins:[],
   titles: { id: "value1" },
   status: "",
   storageClient: {}
@@ -40,13 +42,16 @@ const mutations = {
   async [GET_NODE](state, loadedNode) {
     state.node = loadedNode;
   },
-  async [DELETE_NODE]() {
-    state.node = {};
+  async [DELETE_NODE](parentNode) {
+    state.node = parentNode;
   },
   async [LOAD_PINS](state, pins) {
     state.pins = pins;
   },
   async [LOAD_TITLES]() {
+  },
+  async [PIN_NODE](state,pins) {
+    state.pins = pins;
   }
 };
 
@@ -75,10 +80,13 @@ const actions = {
     commit(ADD_NODE, newNode);
   },
   async deleteNodeAction({ commit }, nodeId) {
+    let parentNodeId = this.state.node.ins[0];
+    let parentNode = await nodeDataService.deleteNode(parentNodeId); 
     await nodeDataService.deleteNode(nodeId);
-    commit(DELETE_NODE);
+    
+    commit(DELETE_NODE,parentNode);
   },
-  getPins({commit}){
+  loadPinsAction({commit}){
     let pins = nodeDataService.getPins();
     commit(LOAD_PINS,pins)
   },

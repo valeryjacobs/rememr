@@ -18,7 +18,7 @@
 
     <div class="columns">
       <div class="column is-full">
-        <editor  mode="wysiwyg" height="600px" :options="editorOptions" v-model="node.content" />
+        <editor mode="wysiwyg" height="600px" :options="editorOptions" v-model="node.content" />
       </div>
     </div>
 
@@ -31,27 +31,23 @@
         </div>
       </div>
     </div>
-<hr>
-       <div class="columns">
-      <div class="column">
-        <div class="tags">
-          <span v-for="link in pins" :key="link.id" class="tag is-light">
-            <a @click="loadNode(link.id)">{{link.title}}</a>
-          </span>
-        </div>
-      </div>
-    </div>
+    <hr />
 
     <div class="columns">
       <div style="margin:5px" class="column is full">
         <div class="buttons">
-          <button class="button is-primary" @click="updateNode">
-            <b-icon icon="check"></b-icon>
-            <span>Save</span>
+          <button class="button is-primary is-medium" @click="updateNode">
+            <font-awesome-icon icon="save" size="1x" />
           </button>
-          <button class="button is-primary" @click="loadNode">Load</button>
-          <button class="button is-primary" @click="addNode">Add</button>
-          <button class="button is-primary" @click="loadTitles">Load titles</button>
+          <button class="button is-primary is-medium" @click="addNode">
+            <font-awesome-icon icon="plus" size="1x" />
+          </button>
+          <button class="button is-primary is-medium" @click="deleteNode">
+            <font-awesome-icon icon="trash" size="1x" />
+          </button>
+          <button class="button is-primary is-medium" @click="pinNode">
+            <font-awesome-icon icon="thumbtack" size="1x" />
+          </button>
         </div>
       </div>
     </div>
@@ -71,11 +67,10 @@ import "tui-editor/dist/tui-editor-contents.css";
 import "codemirror/lib/codemirror.css";
 import { Editor } from "@toast-ui/vue-editor";
 import { displayDateFormat } from "../shared/constants.js";
-//import { nodeDataService } from '../shared/nodedata.service';
 
 const defaultOptions = {
   minHeight: "500px",
-  height: '800px',
+  height: "800px",
   language: "en_US",
   useCommandShortcut: true,
   useDefaultHTMLSanitizer: true,
@@ -108,12 +103,9 @@ const defaultOptions = {
 
 export default {
   name: "NodeEditor",
-  components: {
-    editor: Editor
-  },
+
   async created() {
     await this.init();
-   
   },
   data() {
     return {
@@ -129,11 +121,31 @@ export default {
       "deleteNodeAction",
       "addNodeAction",
       "updateNodeAction",
-      "loadTitlesAction"
+      "loadTitlesAction",
+      "loadPinsAction",
+      "pinNodeAction"
     ]),
+    async deleteNode() {
+      this.$buefy.dialog.prompt({
+        message: `What's your name?`,
+        inputAttrs: {
+          placeholder: "e.g. Walter",
+          maxlength: 10
+        },
+        trapFocus: true,
+        onConfirm: async () => {
+          this.status = "Deleting node..";
+          let nodeId = this.state.node.id;
+          await this.deleteNodeAction();
+          this.status = "Node " + nodeId + " deleted...";
+        }
+      });
+    },
+
     async init() {
       this.status = "initializing...";
       await this.getNodeAction("root");
+      this.loadPinsAction();
       this.status = "loaded.";
     },
     async loadNode(nodeId) {
@@ -150,13 +162,16 @@ export default {
       this.status = "adding node";
       await this.addNodeAction();
     },
+  
+    async pinNodeAction() {
+      this.status = "Pinning node...";
+      await this.pinNodeAction();
+      this.status = "Node pinned";
+    },
     async loadTitles() {
-      this.status = "loading titles...";
+      this.status = "Loading titles...";
       await this.loadTitlesAction();
       this.status = "titles loaded";
-    },
-    save() {
-      this.status = "saved";
     }
   },
   filters: {
@@ -171,14 +186,9 @@ export default {
   },
   computed: {
     ...mapState(["node"])
+  },
+  components: {
+    editor: Editor
   }
-
-  //   ,
-  //   props: {
-  //     nodeContent: String
-  //   }
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-
