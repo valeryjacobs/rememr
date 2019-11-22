@@ -2,9 +2,7 @@
   <div>
     <div class="columns">
       <div class="column">
-     
-          <b-input v-model="node.metadata.title"></b-input>
-     
+        <b-input v-model="node.metadata.title"></b-input>
       </div>
     </div>
 
@@ -20,7 +18,7 @@
 
     <div class="columns">
       <div class="column is-full">
-        <editor :options="editorOptions" v-model="node.content" />
+        <editor  mode="wysiwyg" height="600px" :options="editorOptions" v-model="node.content" />
       </div>
     </div>
 
@@ -33,19 +31,30 @@
         </div>
       </div>
     </div>
+<hr>
+       <div class="columns">
+      <div class="column">
+        <div class="tags">
+          <span v-for="link in pins" :key="link.id" class="tag is-light">
+            <a @click="loadNode(link.id)">{{link.title}}</a>
+          </span>
+        </div>
+      </div>
+    </div>
 
     <div class="columns">
       <div style="margin:5px" class="column is full">
         <div class="buttons">
-          <button class="button is-primary" @click="updateNode">   <b-icon icon="check"></b-icon>
-            <span>Save</span> </button>
+          <button class="button is-primary" @click="updateNode">
+            <b-icon icon="check"></b-icon>
+            <span>Save</span>
+          </button>
           <button class="button is-primary" @click="loadNode">Load</button>
           <button class="button is-primary" @click="addNode">Add</button>
           <button class="button is-primary" @click="loadTitles">Load titles</button>
-
         </div>
       </div>
-    </div>     
+    </div>
 
     <div class="columns">
       <div class="column">
@@ -66,6 +75,7 @@ import { displayDateFormat } from "../shared/constants.js";
 
 const defaultOptions = {
   minHeight: "500px",
+  height: '800px',
   language: "en_US",
   useCommandShortcut: true,
   useDefaultHTMLSanitizer: true,
@@ -103,6 +113,7 @@ export default {
   },
   async created() {
     await this.init();
+   
   },
   data() {
     return {

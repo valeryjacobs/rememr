@@ -8,7 +8,8 @@ import {
   UPDATE_NODE,
   GET_NODE,
   DELETE_NODE,
-  LOAD_TITLES
+  LOAD_TITLES,
+  LOAD_PINS
 
 } from './mutation-types';
 
@@ -19,7 +20,6 @@ class Node {
     this.content = "";
     this.metadata = { "title": "", "ins": {}, "outs": {} };
   }
-
 }
 
 Vue.use(Vuex)
@@ -36,7 +36,6 @@ const mutations = {
     state.node = addedNode;
   },
   async [UPDATE_NODE]() {
-
   },
   async [GET_NODE](state, loadedNode) {
     state.node = loadedNode;
@@ -44,8 +43,10 @@ const mutations = {
   async [DELETE_NODE]() {
     state.node = {};
   },
+  async [LOAD_PINS](state, pins) {
+    state.pins = pins;
+  },
   async [LOAD_TITLES]() {
-
   }
 };
 
@@ -53,6 +54,8 @@ const actions = {
 
   async addNodeAction({ commit }) {
     //Save current node?
+    await nodeDataService.updateNode(this.state.node);
+
     let parentNodeId = this.state.node.id;
 
     let newNode = new Node(createNewNodeId());
@@ -75,16 +78,24 @@ const actions = {
     await nodeDataService.deleteNode(nodeId);
     commit(DELETE_NODE);
   },
+  getPins({commit}){
+    let pins = nodeDataService.getPins();
+    commit(LOAD_PINS,pins)
+  },
   async getNodeAction({ commit }, nodeId) {
     const loadedNode = await nodeDataService.getNode(nodeId);
 
-    //await this.loadTitlesAction();
+    loadedNode.metadata.ins.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
+
+    loadedNode.metadata.outs.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
 
     commit(GET_NODE, loadedNode);
-  },
-  async updateNodeAction({ commit }) {
-    await nodeDataService.updateNode(this.state.node);
-    commit(UPDATE_NODE);
   },
   async loadTitlesAction({ commit }) {
     this.state.node.metadata.ins.forEach(async function (entry) {
@@ -98,7 +109,12 @@ const actions = {
     });
 
     commit(LOAD_TITLES);
+  },
+  async updateNodeAction({ commit }) {
+    await nodeDataService.updateNode(this.state.node);
+    commit(UPDATE_NODE);
   }
+
 };
 const getters = {
   //getNodeById: state=> id=> return

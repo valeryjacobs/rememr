@@ -9,6 +9,10 @@ const blobServiceClient = new BlobServiceClient(
 
 const containerClient = blobServiceClient.getContainerClient('nodes');
 
+const getPins = function (){
+  return   localStorage.getItem('storageaccountsas').split(',');
+}
+
 const getNode = async function (nodeId) {
 
   const blobClient = containerClient.getBlobClient(nodeId);
@@ -84,6 +88,7 @@ export const nodeDataService = {
   deleteNode,
   getMetadata,
   setMetadata,
-  resolveNode
+  resolveNode,
+  getPins
 };
 

@@ -3,7 +3,7 @@
     <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
 
     
-        <NodeEditor nodeContent="Some MD content" />
+        <NodeEditor nodeContent="" />
       
   </div>
 </template>
