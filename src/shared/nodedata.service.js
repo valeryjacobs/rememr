@@ -30,6 +30,7 @@ const getPins = async function () {
   return JSON.parse(pinsString).pins;
 }
 
+
 const savePin = async function (nodeId) {
   let pins = getPins();
   pins.push(nodeId);
