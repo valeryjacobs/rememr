@@ -58,7 +58,7 @@ const mutations = {
 const actions = {
 
   async addNodeAction({ commit }) {
-    //Save  current node?
+    //Save   current node?
     await nodeDataService.updateNode(this.state.node);
 
     let parentNodeId = this.state.node.id;
