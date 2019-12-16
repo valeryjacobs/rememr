@@ -48,6 +48,7 @@
           <button class="button is-primary is-medium" @click="pinNode">
             <font-awesome-icon icon="thumbtack" size="1x" />
           </button>
+          <button class="button is-medium is-dark" @click="prompt">Set key</button>
         </div>
       </div>
     </div>
@@ -125,6 +126,17 @@ export default {
       "loadPinsAction",
       "pinNodeAction"
     ]),
+    prompt() {
+      this.$buefy.dialog.prompt({
+        message: `Enter the Shared Access Signature for your store?`,
+        inputAttrs: {
+          placeholder: "SAS Key...",
+          maxlength: 120
+        },
+        trapFocus: true,
+        onConfirm: value => localStorage.setItem("storageaccountsas", value)
+      });
+    },
     async deleteNode() {
       this.$buefy.dialog.prompt({
         message: `What's your name?`,
@@ -162,7 +174,7 @@ export default {
       this.status = "adding node";
       await this.addNodeAction();
     },
-  
+
     async pinNode() {
       this.status = "Pinning node...";
       await this.pinNodeAction();
