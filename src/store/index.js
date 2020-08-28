@@ -8,6 +8,9 @@ import {
   UPDATE_NODE,
   GET_NODE,
   DELETE_NODE,
+  LOAD_TITLES,
+  LOAD_PINS,
+  ADD_PIN
 
 } from './mutation-types';
 
@@ -18,14 +21,15 @@ class Node {
     this.content = "";
     this.metadata = { "title": "", "ins": {}, "outs": {} };
   }
-
 }
 
 Vue.use(Vuex)
 
 const state = () => ({
   node: new Node('dummy'),
-  status:"",
+  pins:[],
+  titles: { id: "value1" },
+  status: "",
   storageClient: {}
 });
 
@@ -34,34 +38,41 @@ const mutations = {
     state.node = addedNode;
   },
   async [UPDATE_NODE]() {
-  
   },
   async [GET_NODE](state, loadedNode) {
     state.node = loadedNode;
   },
-  async [DELETE_NODE]() {
-    state.node = {};
+  async [DELETE_NODE](parentNode) {
+    state.node = parentNode;
+  },
+  async [LOAD_PINS](state, pins) {
+    state.pins = pins;
+  },
+  async [LOAD_TITLES]() {
+  },
+  async [ADD_PIN](state,pins) {
+    state.pins = pins;
   }
 };
 
 const actions = {
 
   async addNodeAction({ commit }) {
-    //Save current node?
+    //Save   current node?
+    await nodeDataService.updateNode(this.state.node);
+
     let parentNodeId = this.state.node.id;
 
     let newNode = new Node(createNewNodeId());
     newNode.content = "empty";
-    newNode.metadata = JSON.parse('{"title":"empty title","ins":[{"id":"' + parentNodeId + '","title":"' + this.state.node.metadata.title +  '"}],"outs":[]}');
-
+    newNode.metadata = JSON.parse('{"title":"empty title","ins":[{"id":"' + parentNodeId + '","title":"' + this.state.node.metadata.title + '"}],"outs":[]}');
 
     await nodeDataService.addNode(newNode);
 
     let parentMetadata = await nodeDataService.getMetadata(parentNodeId)
 
     if (parentMetadata.outs) {
-      parentMetadata.outs.push({"id":newNode.id,"title":""});
- 
+      parentMetadata.outs.push({ "id": newNode.id, "title": "" });
     }
 
     await nodeDataService.setMetadata(parentNodeId, parentMetadata);
@@ -69,17 +80,53 @@ const actions = {
     commit(ADD_NODE, newNode);
   },
   async deleteNodeAction({ commit }, nodeId) {
+    let parentNodeId = this.state.node.ins[0];
+    let parentNode = await nodeDataService.deleteNode(parentNodeId); 
     await nodeDataService.deleteNode(nodeId);
-    commit(DELETE_NODE);
+    
+    commit(DELETE_NODE,parentNode);
+  },
+  async loadPinsAction({commit}){
+    let pins = await nodeDataService.getPins();
+    commit(LOAD_PINS,pins)
+  },
+  async addPinAction({commit}){
+    let pins = await nodeDataService.addPin();
+    commit(ADD_PIN,pins)
   },
   async getNodeAction({ commit }, nodeId) {
     const loadedNode = await nodeDataService.getNode(nodeId);
+
+    loadedNode.metadata.ins.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
+
+    loadedNode.metadata.outs.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
+
     commit(GET_NODE, loadedNode);
+  },
+  async loadTitlesAction({ commit }) {
+    this.state.node.metadata.ins.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
+
+    this.state.node.metadata.outs.forEach(async function (entry) {
+      /* eslint require-atomic-updates: "off" */
+      entry.title = await nodeDataService.resolveNode(entry.id);
+    });
+
+    commit(LOAD_TITLES);
   },
   async updateNodeAction({ commit }) {
     await nodeDataService.updateNode(this.state.node);
     commit(UPDATE_NODE);
   }
+
 };
 const getters = {
   //getNodeById: state=> id=> return
